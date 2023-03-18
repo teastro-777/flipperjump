@@ -4,7 +4,6 @@ const backgroundMusic = document.getElementById('backgroundMusic');
 const jumpSound = new Audio('jump.mp3');
 const gameOverSound = new Audio('gameover.mp3');
 const explosionSound = new Audio('boom.mp3');
-const boxInterval = 30; // Justera detta värde för att ändra intervallen mellan lådorna
 
 
 let gameStarted = false;
@@ -18,8 +17,6 @@ let score = 0;
 let startScreen = true;
 let speedMultiplier = 1;
 
-let birds = [];
-let birdInterval = 10;
 
 let background = new Image();
 background.src = 'background.jpg';
@@ -39,18 +36,7 @@ let gubbe = {
     img: new Image(),
 };
 
-gubbe.img.src = 'gubbe.png';
-gubbe.frameCount = 0; // Ange antalet rutor i din sprite-ark
-gubbe.currentFrame = 0;
-gubbe.frameWidth = gubbe.width;
-gubbe.frameHeight = gubbe.height;
-
-function updateGubbeFrame() {
-    gubbe.currentFrame = (gubbe.currentFrame + 1) % gubbe.frameCount;
-}
-
-setInterval(updateGubbeFrame, 100);
-
+gubbe.img.src = 'gubbe.gif';
 
 let boxes = [];
 
@@ -75,18 +61,7 @@ function handleDifficultySelection(e) {
 
 window.addEventListener('keydown', handleDifficultySelection);
 
-function createBird() {
-    let bird = {
-        img: new Image(),
-        x: canvas.width,
-        y: Math.floor(Math.random() * (gubbe.y - 100)) + 50,
-        width: 50,
-        height: 50,
-        speed: 4
-    };
-    bird.img.src = 'bird.gif';
-    birds.push(bird);
-}
+
 
 function showStartScreen() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -341,57 +316,28 @@ window.addEventListener('keyup', moveGubbe);
 setInterval(handleJump, 50);
 //setInterval(createBox, 1500);
 
-
-let birdCounter = 0;
-
-
-
 function update() {
-    if (startScreen) {
+      if (startScreen) {
         showStartScreen();
         return;
     }
-    
-    if (!gameStarted) {
+	 if (!gameStarted) {
         showStartScreen();
         return;
     }
 
     if (gameOver) return;
+	if (gameOver) return;
+if (!gameOver && backgroundMusic.paused) {
+    backgroundMusic.play();
+}
 
-    if (!gameOver && backgroundMusic.paused) {
-        backgroundMusic.play();
-    }
+	ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    birdCounter++;
-    if (birdCounter === birdInterval * boxInterval) {
-        createBird();
-        birdCounter = 0;
-    }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-    drawDifficulty();
-
-    ctx.drawImage(gubbe.img, gubbe.frameWidth * gubbe.currentFrame, 0, gubbe.frameWidth, gubbe.frameHeight, gubbe.x, gubbe.y, gubbe.width, gubbe.height);
-
-    for (let i = 0; i < birds.length; i++) {
-        let bird = birds[i];
-        bird.x -= bird.speed;
-
-        ctx.drawImage(bird.img, bird.x, bird.y, bird.width, bird.height);
-
-        if (bird.x + bird.width < 0) {
-            birds.splice(i, 1);
-            i--;
-        }
-
-        if (checkCollision(gubbe, bird)) {
-            gameOver = true;
-            gameOverSequence();
-            break;
-        }
-    }
+    drawDifficulty(); // Lägg till denna rad för att visa svårighetsgraden på skärmen	
 
     if (!gubbe.jumping && gubbe.y < gubbe.groundY) {
         gubbe.y += gubbe.speed;
@@ -419,6 +365,9 @@ function update() {
     }
 
     ctx.drawImage(gubbe.img, gubbe.x, gubbe.y, gubbe.width, gubbe.height);
+	
+
+
 
     if (explosionPosition) {
         ctx.drawImage(explosion, explosionPosition.x, explosionPosition.y, explosionPosition.width * 3, explosionPosition.height * 3);
@@ -434,6 +383,8 @@ function update() {
     }
 
     drawScore();
+	
 }
+
 update();
 showStartScreen();
